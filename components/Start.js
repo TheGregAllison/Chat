@@ -3,16 +3,35 @@ import {
   StyleSheet,
   View,
   Text,
-  Button,
+  TouchableOpacity,
   TextInput,
   ImageBackground,
-  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
 } from 'react-native';
+import { getAuth, signInAnonymously } from 'firebase/auth';
 
 const Start = ({ navigation }) => {
+  const auth = getAuth();
   const [name, setName] = useState('');
   const [background, setBackground] = useState('');
   const colors = ['#474056', '#090C08', '#8A95A5', '#B9C6AE'];
+
+  const signInUser = () => {
+    signInAnonymously(auth)
+      .then((result) => {
+        navigation.navigate('Chat', {
+          name: name,
+          background: background,
+          id: result.user.uid,
+        });
+        Alert.alert('Signed in Successfully!');
+      })
+      .catch((error) => {
+        Alert.alert('Unable to sign in - Please try again.');
+      });
+  };
 
   return (
     <View style={styles.container}>
@@ -23,6 +42,8 @@ const Start = ({ navigation }) => {
       >
         <View style={styles.startBox}>
           <TextInput
+            accessibilityLabel="Input username"
+            accessibilityRole="text"
             style={styles.textInput}
             value={name}
             onChangeText={setName}
@@ -48,17 +69,17 @@ const Start = ({ navigation }) => {
             ))}
           </View>
           <TouchableOpacity
+            accessibilityLabel="Start Chatting"
+            accessibilityRole="button"
             style={styles.button}
-            onPress={() =>
-              navigation.navigate('Chat', {
-                name: name,
-                background: background,
-              })
-            }
+            onPress={signInUser}
           >
             <Text style={styles.startChatting}>Start Chatting</Text>
           </TouchableOpacity>
         </View>
+        {Platform.OS === 'ios' ? (
+          <KeyboardAvoidingView behavior="padding" />
+        ) : null}
       </ImageBackground>
     </View>
   );
