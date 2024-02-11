@@ -9,9 +9,11 @@ import {
   query,
 } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import MapView from 'react-native-maps';
+import CustomActions from './CustomActions';
 
-const Chat = ({ route, navigation, db, isConnected }) => {
-  const { name, background } = route.params;
+const Chat = ({ route, navigation, db, isConnected, storage }) => {
+  const { name, background, userID } = route.params;
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
@@ -84,6 +86,43 @@ const Chat = ({ route, navigation, db, isConnected }) => {
     else return null;
   };
 
+  const renderCustomActions = (props) => {
+    return <CustomActions storage={storage} {...props} />;
+  };
+
+  const renderCustomView = (props) => {
+    const { currentMessage } = props;
+    if (currentMessage.location) {
+      return (
+        <MapView
+          style={{ width: 150, height: 100, borderRadius: 13, margin: 3 }}
+          region={{
+            latitude: currentMessage.location.latitude,
+            longitude: currentMessage.location.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+        />
+      );
+    }
+    return null;
+  };
+
+  const getLocation = async () => {
+    let permissions = await Location.requestForegroundPermissionsAsync();
+    if (permissions?.granted) {
+      const location = await Location.getCurrentPositionAsync({});
+      if (location) {
+        onSend({
+          location: {
+            longitude: location.coords.longitude,
+            latitude: location.coords.latitude,
+          },
+        });
+      } else Alert.alert('Error occurred while fetching location');
+    } else Alert.alert("Permissions haven't been granted.");
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: background }]}>
       <GiftedChat
@@ -91,10 +130,9 @@ const Chat = ({ route, navigation, db, isConnected }) => {
         renderBubble={renderBubble}
         renderInputToolbar={renderInputToolbar}
         onSend={(messages) => onSend(messages)}
-        user={{
-          _id: route.params.id,
-          name,
-        }}
+        renderActions={renderCustomActions}
+        renderCustomView={renderCustomView}
+        userID={userID}
       />
       {Platform.OS === 'android' ? (
         <KeyboardAvoidingView behavior="height" />
@@ -106,10 +144,7 @@ const Chat = ({ route, navigation, db, isConnected }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  systemMessage: {
-    color: 'white',
-  },
+  },  
 });
 
 export default Chat;
