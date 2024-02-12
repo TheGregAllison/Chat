@@ -12,7 +12,6 @@ import { getStorage } from 'firebase/storage';
 import { useEffect, useState } from 'react';
 import { LogBox, Alert } from 'react-native';
 import { useNetInfo } from '@react-native-community/netinfo';
-import * as ImagePicker from 'expo-image-picker';
 
 const Stack = createNativeStackNavigator();
 
@@ -45,10 +44,6 @@ const App = () => {
       enableNetwork(db);
     }
   }, [connectionStatus.isConnected]);
-
-  const renderCustomActions = (props) => {
-    return <CustomActions storage={storage} {...props} />;
-  };
 
   return (
     <NavigationContainer>

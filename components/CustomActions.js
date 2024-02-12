@@ -1,7 +1,6 @@
 import { TouchableOpacity, StyleSheet, View, Text, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
-import * as MediaLibrary from 'expo-media-library';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
