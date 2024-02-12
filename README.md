@@ -4,10 +4,9 @@
 
 <div>
 <img src="https://github.com/TheGregAllison/Chat/assets/146021687/4cc019c7-301c-4567-860f-7b17e75fd3b9" width="250">
-
 <img src="https://github.com/TheGregAllison/Chat/assets/146021687/0949b780-0e1b-498b-a0d6-c9ead1f3e019" width="250">
-
 </div>
+
 ## Summary:
 
 - This application is created with React Native and allows users to communicate with each other in a chatroom natively from their smartphone.
