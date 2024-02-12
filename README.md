@@ -2,7 +2,7 @@
 
 ## UI Screenshot:
 
-![Chat Screenshot](https://github.com/TheGregAllison/Chat/assets/146021687/4cc019c7-301c-4567-860f-7b17e75fd3b9)
+![Chat Screenshot](https://github.com/TheGregAllison/Chat/assets/146021687/4cc019c7-301c-4567-860f-7b17e75fd3b9 =250x)
 
 ## Summary:
 
