@@ -12,13 +12,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import MapView from 'react-native-maps';
 import CustomActions from './CustomActions';
 
-const Chat = ({ route, navigation, db, isConnected, storage }) => {
-  const { name, background, userID } = route.params;
+const Chat = ({ navigation, route, db, isConnected, storage }) => {
+  const { user, background, userID } = route.params;
   const [messages, setMessages] = useState([]);
 
-  useEffect(() => {
-    navigation.setOptions({ title: name });
-  }, []);
+  const onSend = (newMessages) => {
+    addDoc(collection(db, 'messages'), newMessages[0]);
+  };
 
   const cacheMessages = async (messageList) => {
     try {
@@ -34,15 +34,17 @@ const Chat = ({ route, navigation, db, isConnected, storage }) => {
   };
 
   let unsubMessages;
+
   useEffect(() => {
     if (isConnected === true) {
       if (unsubMessages) unsubMessages();
       unsubMessages = null;
 
+      navigation.setOptions({ title: user });
       const q = query(collection(db, 'messages'), orderBy('createdAt', 'desc'));
-      const message = onSnapshot(q, (documentSnapshot) => {
+      unsubMessages = onSnapshot(q, (docs) => {
         let newMessages = [];
-        documentSnapshot.forEach((doc) => {
+        docs.forEach((doc) => {
           newMessages.push({
             id: doc.id,
             ...doc.data(),
@@ -54,17 +56,11 @@ const Chat = ({ route, navigation, db, isConnected, storage }) => {
       });
     } else loadCachedMessages();
 
+    // Cleanup code
     return () => {
-      if (unsubMessages) {
-        unsubMessages();
-      }
+      if (unsubMessages) unsubMessages(); // This invocation is meant to stop listening to changes in the Firestore collection initiated by the onSnapshot call earlier in the useEffect. It's not a traditional unsubscribe, but rather a way to stop the listening process initiated by onSnapshot.
     };
   }, [isConnected]);
-
-  const onSend = (newMessages) => {
-    addDoc(collection(db, 'messages'), newMessages[0]);
-  };
-
   const renderBubble = (props) => {
     return (
       <Bubble
@@ -87,7 +83,7 @@ const Chat = ({ route, navigation, db, isConnected, storage }) => {
   };
 
   const renderCustomActions = (props) => {
-    return <CustomActions storage={storage} {...props} />;
+    return <CustomActions storage={storage} userID={userID} {...props} />;
   };
 
   const renderCustomView = (props) => {
@@ -108,31 +104,18 @@ const Chat = ({ route, navigation, db, isConnected, storage }) => {
     return null;
   };
 
-  const getLocation = async () => {
-    let permissions = await Location.requestForegroundPermissionsAsync();
-    if (permissions?.granted) {
-      const location = await Location.getCurrentPositionAsync({});
-      if (location) {
-        onSend({
-          location: {
-            longitude: location.coords.longitude,
-            latitude: location.coords.latitude,
-          },
-        });
-      } else Alert.alert('Error occurred while fetching location');
-    } else Alert.alert("Permissions haven't been granted.");
-  };
-
   return (
     <View style={[styles.container, { backgroundColor: background }]}>
       <GiftedChat
         messages={messages}
         renderBubble={renderBubble}
         renderInputToolbar={renderInputToolbar}
-        onSend={(messages) => onSend(messages)}
         renderActions={renderCustomActions}
         renderCustomView={renderCustomView}
-        userID={userID}
+        onSend={(messages) => onSend(messages)}
+        user={{
+          _id: userID,
+        }}
       />
       {Platform.OS === 'android' ? (
         <KeyboardAvoidingView behavior="height" />
@@ -144,7 +127,7 @@ const Chat = ({ route, navigation, db, isConnected, storage }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },  
+  },
 });
 
 export default Chat;

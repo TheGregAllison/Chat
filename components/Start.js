@@ -14,7 +14,7 @@ import { getAuth, signInAnonymously } from 'firebase/auth';
 
 const Start = ({ navigation }) => {
   const auth = getAuth();
-  const [name, setName] = useState('');
+  const [user, setUser] = useState("");
   const [background, setBackground] = useState('');
   const colors = ['#474056', '#090C08', '#8A95A5', '#B9C6AE'];
 
@@ -22,7 +22,7 @@ const Start = ({ navigation }) => {
     signInAnonymously(auth)
       .then((result) => {
         navigation.navigate('Chat', {
-          name: name,
+          userID: result.user.uid,
           background: background,
           id: result.user.uid,
         });
@@ -45,8 +45,8 @@ const Start = ({ navigation }) => {
             accessibilityLabel="Input username"
             accessibilityRole="text"
             style={styles.textInput}
-            value={name}
-            onChangeText={setName}
+            value={user}
+            onChangeText={setUser}
             placeholder="Your Name"
           />
           <Text style={styles.chooseBackgroundColor}>
@@ -56,7 +56,7 @@ const Start = ({ navigation }) => {
             {colors.map((color, index) => (
               <TouchableOpacity
                 accessibilityLabel="Color Button"
-                accessibilityHint="Lets you choose a backgroundcolor for your chat."
+                accessibilityHint="Choose a background color for your chat."
                 accessibilityRole="button"
                 key={index}
                 style={[
@@ -74,7 +74,7 @@ const Start = ({ navigation }) => {
             style={styles.button}
             onPress={signInUser}
           >
-            <Text style={styles.startChatting}>Start Chatting</Text>
+            <Text style={styles.startChatting}>Join Chat</Text>
           </TouchableOpacity>
         </View>
         {Platform.OS === 'ios' ? (
